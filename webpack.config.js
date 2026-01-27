@@ -22,6 +22,10 @@ module.exports = {
             {
                 test: /\.css$/,
                 use: ['style-loader', 'css-loader'], // Allows importing CSS files
+            },
+            {
+                test: /\.(png|jpg|gif|svg)$/,
+                type: 'asset/inline' // <--- This forces the image into text/base64
             }
         ],
     },

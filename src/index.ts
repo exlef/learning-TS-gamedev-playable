@@ -1,4 +1,7 @@
 import * as PIXI from 'pixi.js';
+import playerImg from './assets/player.png';
+
+
 
 // 1. Create the Application (The "Unity Engine")
 const app = new PIXI.Application();
@@ -12,23 +15,18 @@ const app = new PIXI.Application();
 
     // Add the canvas to the HTML document
     document.body.appendChild(app.canvas);
+    const texture = await PIXI.Assets.load(playerImg);
+    const player = new PIXI.Sprite(texture);
+    player.x = app.screen.width / 2;
+    player.y = app.screen.height / 2;
+    player.anchor.set(0.5, 0.5);
 
-    // 3. Create a "Sprite" (GameObject)
-    // For now, we draw a rectangle because we haven't loaded images yet
-    const graphics = new PIXI.Graphics();
-    graphics.rect(0, 0, 100, 100);
-    graphics.fill(0xFF0000); // Red
-
-    // Center it
-    graphics.x = app.screen.width / 2;
-    graphics.y = app.screen.height / 2;
-    graphics.pivot.set(50, 50); // Set Pivot to center (like Anchor)
 
     // 4. Add to Scene
-    app.stage.addChild(graphics);
+    app.stage.addChild(player);
 
     // 5. Update Loop (Like void Update())
     app.ticker.add((time) => {
-        graphics.rotation += 0.05 * time.deltaTime;
+        player.scale = Math.sin(time.lastTime * 0.01);
     });
 })();

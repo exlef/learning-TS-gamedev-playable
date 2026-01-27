@@ -21,12 +21,30 @@ const app = new PIXI.Application();
     player.y = app.screen.height / 2;
     player.anchor.set(0.5, 0.5);
 
+    // input
+    player.eventMode = 'static';
+    player.cursor = 'pointer';
+
+    player.on('pointerdown', (event)=>{
+       console.log("I was clicked");
+       player.x = Math.random() * app.screen.width;
+       player.y = Math.random() * app.screen.height;
+        event.stopPropagation();
+    });
+
 
     // 4. Add to Scene
     app.stage.addChild(player);
+    app.stage.eventMode = 'static';
+    app.stage.hitArea = app.screen;
+    app.stage.on('pointerdown', (event) => {
+        const clickPosition = event.global;
+        console.log("clicked at " + clickPosition.x + " " + clickPosition.y);
+    });
+
 
     // 5. Update Loop (Like void Update())
     app.ticker.add((time) => {
-        player.scale = Math.sin(time.lastTime * 0.01);
+
     });
 })();

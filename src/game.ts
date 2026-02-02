@@ -1,12 +1,15 @@
 import * as PIXI from 'pixi.js';
 import playerImg from './assets/player.png';
 import gsap from 'gsap'
+import {styleAttributes} from "pixi.js";
 
 export class Game{
     private readonly app : PIXI.Application;
     player! : PIXI.Sprite;
+    score: number;
 
     constructor() {
+        this.score = 0;
         this.app = new PIXI.Application();
     }
 
@@ -39,21 +42,34 @@ export class Game{
 
         this.player.on('pointerdown', (event)=>{
             console.log("I was clicked");
-            const tl = gsap.timeline();
-            tl.to(this.player, {
-                x : Math.random() * this.app.screen.width,
-                y : Math.random() * this.app.screen.height,
-                duration : 1,
-                ease : 'back.out(1.7)',
-                onComplete : () => {
-                    console.log('tween completed');
-                }
-            })
-                .to(this.player.scale, {
-                    x : 1.5, y: 1.5, duration : 0.5
-                }, "<").to(this.player.scale, { //<--- THIS is the secret. The "<" says: "Join the previous start time!"
-                x : 1, y: 1, duration : 0.5
-            })
+            this.score++;
+            const text = document.getElementById('tutorial-text') as HTMLDivElement;
+            text.innerText = "Score: " + this.score + "/3";
+            if(this.score >= 3)
+            {
+                const btn = document.getElementById('cta-button') as HTMLDivElement;
+                btn.style.display = 'block';
+                this.player.destroy();
+            }
+            else
+            {
+                const tl = gsap.timeline();
+                tl.to(this.player, {
+                    x : Math.random() * this.app.screen.width,
+                    y : Math.random() * this.app.screen.height,
+                    duration : 1,
+                    ease : 'back.out(1.7)',
+                    onComplete : () => {
+                        console.log('tween completed');
+                    }
+                })
+                    .to(this.player.scale, {
+                        x : 1.5, y: 1.5, duration : 0.5
+                    }, "<").to(this.player.scale, { //<--- THIS is the secret. The "<" says: "Join the previous start time!"
+                    x : 1, y: 1, duration : 0.5
+                })
+            }
+            
             event.stopPropagation();
         });
 

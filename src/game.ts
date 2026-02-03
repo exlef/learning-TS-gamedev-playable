@@ -16,6 +16,7 @@ export class Game{
     async startGame() : Promise<void>{
         await this.app.init({resizeTo: window, backgroundColor: 0x1099bb});
         document.body.appendChild(this.app.canvas);
+        window.addEventListener('resize', this.onResize);
 
         await this.loadAssets();
         this.createScene();
@@ -81,5 +82,21 @@ export class Game{
             const clickPosition = event.global;
             console.log("clicked at " + clickPosition.x + " " + clickPosition.y);
         });
+
+        this.onResize();
+    }
+
+    private onResize = ()=>{
+        if(this.player) {
+            this.player.x = this.app.screen.width/2;
+            this.player.y = this.app.screen.height/2;
+
+            if(this.app.screen.width < this.app.screen.height){
+                this.player.scale.set(1.5, 1.5);
+            }
+            else{
+                this.player.scale.set(0.8, 0.8);
+            }
+        }
     }
 }

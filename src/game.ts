@@ -1,102 +1,52 @@
 import * as PIXI from 'pixi.js';
-import playerImg from './assets/player.png';
-import gsap from 'gsap'
-import {styleAttributes} from "pixi.js";
+import { Player } from './player'; // Import your class
 
-export class Game{
-    private readonly app : PIXI.Application;
-    player! : PIXI.Sprite;
-    score: number;
+export class Game {
+    private readonly app: PIXI.Application;
+    private player!: Player; // Using YOUR custom class type
 
     constructor() {
-        this.score = 0;
         this.app = new PIXI.Application();
     }
 
-    async startGame() : Promise<void>{
-        await this.app.init({resizeTo: window, backgroundColor: 0x1099bb});
+    async startGame(): Promise<void> {
+        await this.app.init({ resizeTo: window, backgroundColor: 0x1099bb });
         document.body.appendChild(this.app.canvas);
         window.addEventListener('resize', this.onResize);
 
         await this.loadAssets();
         this.createScene();
-
-        this.app.ticker.add((time) => {
-
-        });
     }
 
-    private async loadAssets(){
-        await PIXI.Assets.load(playerImg); // We just ensure the asset is loaded into the cache here
+    private async loadAssets() {
+        // We ask the Player class to load its own specific files
+        // but we wait for it HERE.
+        await Player.loadAssets();
     }
 
-    private createScene():void{
-        const texture = PIXI.Assets.get(playerImg); // Retrieve texture from cache (it was loaded in loadAssets)
-        this.player = new PIXI.Sprite(texture);
-        this.player.x = this.app.screen.width / 2;
-        this.player.y = this.app.screen.height / 2;
-        this.player.anchor.set(0.5, 0.5);
+    private createScene(): void {
+        // Instantiate your Custom Class
+        // We pass 'this.app' so the player knows about screen size
+        this.player = new Player(this.app);
 
-        // input
-        this.player.eventMode = 'static';
-        this.player.cursor = 'pointer';
-
-        this.player.on('pointerdown', (event)=>{
-            console.log("I was clicked");
-            this.score++;
-            const text = document.getElementById('tutorial-text') as HTMLDivElement;
-            text.innerText = "Score: " + this.score + "/3";
-            if(this.score >= 3)
-            {
-                const btn = document.getElementById('cta-button') as HTMLDivElement;
-                btn.style.display = 'block';
-                this.player.destroy();
-            }
-            else
-            {
-                const tl = gsap.timeline();
-                tl.to(this.player, {
-                    x : Math.random() * this.app.screen.width,
-                    y : Math.random() * this.app.screen.height,
-                    duration : 1,
-                    ease : 'back.out(1.7)',
-                    onComplete : () => {
-                        console.log('tween completed');
-                    }
-                })
-                    .to(this.player.scale, {
-                        x : 1.5, y: 1.5, duration : 0.5
-                    }, "<").to(this.player.scale, { //<--- THIS is the secret. The "<" says: "Join the previous start time!"
-                    x : 1, y: 1, duration : 0.5
-                })
-            }
-            
-            event.stopPropagation();
-        });
-
-
+        // Add it to the stage
         this.app.stage.addChild(this.player);
+
+        // Setup Background interactions
         this.app.stage.eventMode = 'static';
         this.app.stage.hitArea = this.app.screen;
-        this.app.stage.on('pointerdown', (event) => {
-            const clickPosition = event.global;
-            console.log("clicked at " + clickPosition.x + " " + clickPosition.y);
+        this.app.stage.on('pointerdown', () => {
+            console.log("Missed click (Stage)");
         });
 
+        // Trigger initial resize logic
         this.onResize();
     }
 
-    private onResize = ()=>{
-        if(this.player) {
-            this.player.x = this.app.screen.width/2;
-            this.player.y = this.app.screen.height/2;
-
-            if(this.app.screen.width < this.app.screen.height){
-                this.player.scale.set(1.5, 1.5);
-            }
-            else{
-                this.player.scale.set(0.8, 0.8);
-            }
+    private onResize = () => {
+        // We just tell the player "Hey, the screen changed, update yourself"
+        if (this.player && !this.player.destroyed) {
+            this.player.onResize();
         }
     }
 }

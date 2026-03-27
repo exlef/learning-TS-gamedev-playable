@@ -1,4 +1,7 @@
 import * as pc from 'playcanvas';
+import { Camera } from './camera';
+import {Player} from "./player.ts";
+import { Light } from './light';
 
 // 1. Get the canvas element
 const canvas = document.getElementById('application-canvas') as HTMLCanvasElement;
@@ -15,37 +18,11 @@ app.setCanvasResolution(pc.RESOLUTION_AUTO);
 window.addEventListener('resize', () => app.resizeCanvas());
 
 // 4. Create a camera
-const camera = new pc.Entity('camera');
-camera.addComponent('camera', {
-    clearColor: new pc.Color(0.1, 0.1, 0.1)
-});
-camera.setPosition(0, 0, 5);
-app.root.addChild(camera);
-
-// 5. Create a directional light
-const light = new pc.Entity('light');
-light.addComponent('light');
-light.setEulerAngles(45, 0, 0);
-app.root.addChild(light);
-
-// 6. Create a box entity
-const box = new pc.Entity('box');
-box.addComponent('render', {
-    type: 'box'
-});
-app.root.addChild(box);
-
-// sphere
-const sphere = new pc.Entity('sphere');
-sphere.addComponent('render', {
-    type : 'sphere'
-});
-const pos = sphere.getPosition();
-sphere.setPosition(pos.x - 1, pos.y, pos.z-1);
-app.root.addChild(sphere)
-
+new Camera(app);
+const player = new Player(app);
+new Light(app);
 
 // 7. Add an update loop to spin the box
 app.on('update', (dt: number) => {
-    box.rotate(10 * dt, 20 * dt, 30 * dt);
+    player.Tick(dt);
 });

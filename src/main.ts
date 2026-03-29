@@ -4,6 +4,7 @@ import {Player} from "./player.ts";
 import { Light } from './light';
 import {Input} from "./input.ts";
 import {EntityPicker} from "./entity-picker.ts";
+import {SpriteManager} from "./sprite-manager.ts";
 
 // 1. Get the canvas element
 const canvas = document.getElementById('application-canvas') as HTMLCanvasElement;
@@ -24,7 +25,7 @@ app.setCanvasResolution(pc.RESOLUTION_AUTO);
 // Ensure canvas is resized when window changes size
 window.addEventListener('resize', () => app.resizeCanvas());
 
-// 4. Create a camera
+await SpriteManager.loadMasterSheet('assets/spritesheet.png', 'assets/spritesheet.json');
 Input.init();
 EntityPicker.init();
 new Camera();

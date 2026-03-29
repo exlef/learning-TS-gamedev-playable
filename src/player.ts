@@ -2,20 +2,21 @@ import * as pc from 'playcanvas'
 import {Input} from "./input.ts";
 import {Camera} from './camera.ts'
 import {EntityPicker} from "./entity-picker.ts";
+import {SpriteManager} from "./sprite-manager.ts";
 
 export class Player {
     private entity: pc.Entity;
     private isSelected = false;
 
     constructor() {
-        // 1. Grab the global application instance!
-        // We use the '!' non-null assertion operator because we know
-        // the app is already initialized in main.ts
         const app = pc.Application.getApplication()!;
 
         this.entity = new pc.Entity('player');
-        this.entity.addComponent('render', {
-            type: 'capsule'
+        const sprite = SpriteManager.getSprite('yellowbird-downflap');
+
+        this.entity.addComponent('sprite', {
+            type: pc.SPRITETYPE_SIMPLE,
+            sprite: sprite
         });
         app.root.addChild(this.entity);
     }
@@ -28,7 +29,7 @@ export class Player {
             }
         }
         if(Input.instance.isHeld && this.isSelected){
-            this.entity.rotate(10 * dt, 20 * dt, 30 * dt);
+            this.entity.rotate(0,0, 30 * dt);
         }
         if(Input.instance.justReleased){
             this.isSelected = false;

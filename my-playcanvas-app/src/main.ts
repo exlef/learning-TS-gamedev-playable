@@ -3,6 +3,7 @@ import { Camera } from './camera';
 import {Player} from "./player.ts";
 import { Light } from './light';
 import {Input} from "./input.ts";
+import {EntityPicker} from "./entity-picker.ts";
 
 // 1. Get the canvas element
 const canvas = document.getElementById('application-canvas') as HTMLCanvasElement;
@@ -25,6 +26,7 @@ window.addEventListener('resize', () => app.resizeCanvas());
 
 // 4. Create a camera
 Input.init();
+EntityPicker.init();
 new Camera();
 const player = new Player();
 new Light();

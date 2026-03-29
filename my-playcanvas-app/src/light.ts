@@ -1,7 +1,8 @@
 import * as pc from 'playcanvas';
 
 export class Light {
-    constructor(app: pc.Application) {
+    constructor() {
+        const app = pc.Application.getApplication()!;
         // Create a directional light
         const light = new pc.Entity('light');
         light.addComponent('light');

@@ -2,6 +2,7 @@ import * as pc from 'playcanvas'
 
 export class Camera{
     private entity: pc.Entity;
+    public static main: pc.CameraComponent;
 
     constructor() {
         const app = pc.Application.getApplication()!;
@@ -11,6 +12,8 @@ export class Camera{
         });
         this.entity.setPosition(0, 0, 5);
         app.root.addChild(this.entity);
+
+        Camera.main = this.entity.camera!;
     }
 
 }

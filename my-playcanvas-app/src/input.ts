@@ -5,7 +5,7 @@ export interface PointerEvent {
     y: number;
     dx?: number;
     dy?: number;
-    isPressed?: boolean;
+    isHeld?: boolean;
     event: pc.MouseEvent | pc.TouchEvent;
 }
 
@@ -14,15 +14,20 @@ export class Input extends pc.EventHandler {
     private static _instance: Input;
     private app: pc.Application;
 
-    public isPressed: boolean = false;
+    // --- CONTINUOUS STATE ---
+    public isHeld: boolean = false;
     public x: number = 0;
     public y: number = 0;
     public dx: number = 0;
     public dy: number = 0;
 
+    // --- PER-FRAME STATE ---
+    public justPressed: boolean = false;
+    public justReleased: boolean = false;
+
     private constructor() {
         super();
-        this.app =  pc.Application.getApplication()! as pc.Application;
+        this.app = pc.Application.getApplication()! as pc.Application;
 
         if (this.app.mouse) {
             this.app.mouse.on(pc.EVENT_MOUSEDOWN, this.onMouseDown, this);
@@ -36,26 +41,26 @@ export class Input extends pc.EventHandler {
             this.app.touch.on(pc.EVENT_TOUCHEND, this.onTouchEnd, this);
             this.app.touch.on(pc.EVENT_TOUCHCANCEL, this.onTouchEnd, this);
         }
+
+        this.app.on('postupdate', this.postUpdate, this);
     }
 
-    // 2. Add an init method to create the instance once
     public static init() {
         if (!Input._instance) {
             Input._instance = new Input();
         }
     }
 
-    // 3. Add a getter to easily access the instance from anywhere
     public static get instance(): Input {
         if (!Input._instance) {
-            console.error("UnifiedInput is not initialized! Call UnifiedInput.init(app) first.");
+            console.error("Input is not initialized! Call Input.init() first.");
         }
         return Input._instance;
     }
 
     // --- MOUSE LISTENERS ---
     private onMouseDown(event: pc.MouseEvent) {
-        if (event.button !== pc.MOUSEBUTTON_LEFT) return; // Ignore right/middle clicks
+        if (event.button !== pc.MOUSEBUTTON_LEFT) return;
         this.handlePointerDown(event.x, event.y, event);
     }
 
@@ -79,7 +84,6 @@ export class Input extends pc.EventHandler {
     private onTouchMove(event: pc.TouchEvent) {
         if (event.touches.length > 0) {
             const touch = event.touches[0];
-            // PlayCanvas touch events lack native dx/dy, so we calculate them manually
             const dx = touch.x - this.x;
             const dy = touch.y - this.y;
             this.handlePointerMove(touch.x, touch.y, dx, dy, event);
@@ -87,13 +91,13 @@ export class Input extends pc.EventHandler {
     }
 
     private onTouchEnd(event: pc.TouchEvent) {
-        // Use the last known coordinates for the pointer up event
         this.handlePointerUp(this.x, this.y, event);
     }
 
     // --- UNIFIED LOGIC ---
     private handlePointerDown(x: number, y: number, event: pc.MouseEvent | pc.TouchEvent) {
-        this.isPressed = true;
+        this.isHeld = true;
+        this.justPressed = true;
         this.x = x;
         this.y = y;
         this.dx = 0;
@@ -106,14 +110,23 @@ export class Input extends pc.EventHandler {
         this.y = y;
         this.dx = dx;
         this.dy = dy;
-        this.fire('pointermove', { x, y, dx, dy, isPressed: this.isPressed, event } as PointerEvent);
+        this.fire('pointermove', { x, y, dx, dy, isHeld: this.isHeld, event } as PointerEvent);
     }
 
     private handlePointerUp(x: number, y: number, event: pc.MouseEvent | pc.TouchEvent) {
-        this.isPressed = false;
+        this.isHeld = false;
+        this.justReleased = true;
         this.x = x;
         this.y = y;
         this.fire('pointerup', { x, y, event } as PointerEvent);
+    }
+
+    // --- RESET AT THE END OF THE FRAME ---
+    public postUpdate() {
+        this.justPressed = false;
+        this.justReleased = false;
+        this.dx = 0;
+        this.dy = 0;
     }
 
     // --- CLEANUP ---

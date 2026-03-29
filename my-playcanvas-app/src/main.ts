@@ -32,4 +32,6 @@ new Light();
 // 7. Add an update loop to spin the box
 app.on('update', (dt: number) => {
     player.Tick(dt);
+
+    Input.instance.postUpdate();
 });

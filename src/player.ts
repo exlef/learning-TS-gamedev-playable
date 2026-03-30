@@ -1,12 +1,15 @@
 import * as pc from 'playcanvas'
 import {Input} from "./input.ts";
-import {Camera} from './camera.ts'
-import {EntityPicker} from "./entity-picker.ts";
 import {SpriteManager} from "./sprite-manager.ts";
 
 export class Player {
     private entity: pc.Entity;
-    private isSelected = false;
+    private pos: pc.Vec2;
+    private vel: pc.Vec2;
+    private xSpeed = 0;
+    private gravity = 3;
+    private jumpForce = 3;
+    private yMaxSpeed = 300;
 
     constructor() {
         const app = pc.Application.getApplication()!;
@@ -19,20 +22,29 @@ export class Player {
             sprite: sprite
         });
         app.root.addChild(this.entity);
+
+        this.pos = new pc.Vec2(0,0);
+        this.pos.x = this.entity.getPosition().x;
+        this.pos.y = this.entity.getPosition().y;
+        this.vel = new pc.Vec2(this.xSpeed, 0);
     }
 
     Tick(dt: number){
         if(Input.instance.justPressed){
-            const hitEntity = EntityPicker.pick(Camera.main, Input.instance.x, Input.instance.y);
-            if(hitEntity == this.entity){
-                this.isSelected = true
-            }
+            this.vel.y += this.jumpForce;
         }
-        if(Input.instance.isHeld && this.isSelected){
-            this.entity.rotate(0,0, 30 * dt);
+        this.vel.y -= this.gravity * dt;
+
+        if(this.vel.y > this.yMaxSpeed * dt){
+            this.vel.y = this.yMaxSpeed * dt;
         }
-        if(Input.instance.justReleased){
-            this.isSelected = false;
+
+        if(this.vel.y < -this.yMaxSpeed * dt){
+            this.vel.y = -this.yMaxSpeed * dt;
         }
+
+        this.pos.x =  this.entity.getPosition().x + this.vel.x * dt;
+        this.pos.y =  this.entity.getPosition().y + this.vel.y * dt;
+        this.entity.setPosition(new pc.Vec3(this.pos.x, this.pos.y, 0));
     }
 }

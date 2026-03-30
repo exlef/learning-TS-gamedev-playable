@@ -1,10 +1,12 @@
 import * as pc from 'playcanvas';
 import { Camera } from './camera';
 import {Player} from "./player.ts";
+import {Pipe} from "./pipe.ts";
 import { Light } from './light';
 import {Input} from "./input.ts";
 import {EntityPicker} from "./entity-picker.ts";
 import {SpriteManager} from "./sprite-manager.ts";
+import {checkOverlap} from "./physics-2d.ts";
 
 // 1. Get the canvas element
 const canvas = document.getElementById('application-canvas') as HTMLCanvasElement;
@@ -30,11 +32,19 @@ Input.init();
 EntityPicker.init();
 new Camera();
 const player = new Player();
+const pipe = new Pipe();
 new Light();
 
 // 7. Add an update loop to spin the box
 app.on('update', (dt: number) => {
     player.Tick(dt);
+
+    if(checkOverlap(player.rect, pipe.rect)){
+        console.log("overlap");
+    }
+
+    player.rect.drawDebug(pc.Color.RED);
+    pipe.rect.drawDebug(pc.Color.GREEN);
 
     Input.instance.postUpdate();
 });

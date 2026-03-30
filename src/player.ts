@@ -1,12 +1,14 @@
 import * as pc from 'playcanvas'
 import {Input} from "./input.ts";
 import {SpriteManager} from "./sprite-manager.ts";
+import {Rect} from "./physics-2d.ts";
 
 export class Player {
     private entity: pc.Entity;
+    rect: Rect;
     private pos: pc.Vec2;
     private vel: pc.Vec2;
-    private xSpeed = 0;
+    private xSpeed = 1;
     private gravity = 3;
     private jumpForce = 3;
     private yMaxSpeed = 300;
@@ -22,7 +24,7 @@ export class Player {
             sprite: sprite
         });
         app.root.addChild(this.entity);
-
+        this.rect = new Rect(this.entity, 0.2, 0.2);
         this.pos = new pc.Vec2(0,0);
         this.pos.x = this.entity.getPosition().x;
         this.pos.y = this.entity.getPosition().y;

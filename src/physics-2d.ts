@@ -41,6 +41,24 @@ export class Rect{
     // --- THE PIVOT POINT COORDINATES ---
     get pivotPointX(): number { return this.entity.getLocalPosition().x; }
     get pivotPointY(): number { return this.entity.getLocalPosition().y; }
+
+    // --- DEBUGGING ---
+    drawDebug(color: pc.Color = pc.Color.RED) {
+        const app = pc.Application.getApplication() as pc.Application;
+        if (!app) {
+            return;
+        }
+
+        const bl = new pc.Vec3(this.bottomLeftX, this.bottomLeftY, 0);
+        const br = new pc.Vec3(this.bottomRightX, this.bottomRightY, 0);
+        const tl = new pc.Vec3(this.topLeftX, this.topLeftY, 0);
+        const tr = new pc.Vec3(this.topRightX, this.topRightY, 0);
+
+        app.drawLine(bl, br, color);
+        app.drawLine(br, tr, color);
+        app.drawLine(tr, tl, color);
+        app.drawLine(tl, bl, color);
+    }
 }
 
 

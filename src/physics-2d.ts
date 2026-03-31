@@ -16,9 +16,9 @@ export class Rect{
     }
 
     // --- CORE EDGES (PlayCanvas Y-Up) ---
-    get left(): number   { return this.entity.getLocalPosition().x - (this.width * this.pivotX); }
+    get left(): number   { return this.entity.getPosition().x - (this.width * this.pivotX); }
     get right(): number  { return this.left + this.width; }
-    get bottom(): number { return this.entity.getLocalPosition().y - (this.height * this.pivotY); }
+    get bottom(): number { return this.entity.getPosition().y - (this.height * this.pivotY); }
     get top(): number    { return this.bottom + this.height; }
 
     // --- EXPLICIT CORNERS ---
@@ -39,8 +39,8 @@ export class Rect{
     get centerY(): number { return this.bottom + (this.height / 2); }
 
     // --- THE PIVOT POINT COORDINATES ---
-    get pivotPointX(): number { return this.entity.getLocalPosition().x; }
-    get pivotPointY(): number { return this.entity.getLocalPosition().y; }
+    get pivotPointX(): number { return this.entity.getPosition().x; }
+    get pivotPointY(): number { return this.entity.getPosition().y; }
 
     // --- DEBUGGING ---
     drawDebug(color: pc.Color = pc.Color.RED) {

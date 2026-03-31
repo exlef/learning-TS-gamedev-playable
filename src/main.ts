@@ -1,50 +1,44 @@
 import * as pc from 'playcanvas';
+import { GameApplication } from './application.ts';
 import { Camera } from './camera';
-import {Player} from "./player.ts";
-import {Pipe} from "./pipe.ts";
+import { Player } from "./player.ts";
+import {PipePair} from "./pipe-pair.ts";
 import { Light } from './light';
-import {Input} from "./input.ts";
-import {EntityPicker} from "./entity-picker.ts";
-import {SpriteManager} from "./sprite-manager.ts";
-import {checkOverlap} from "./physics-2d.ts";
+import { Environment } from "./environment.ts";
+import { checkOverlap } from "./physics-2d.ts";
+import { Input } from "./input.ts";
+import {ScreenBounds} from "./screen-bounds.ts";
 
-// 1. Get the canvas element
-const canvas = document.getElementById('application-canvas') as HTMLCanvasElement;
-// Prevent the right-click / long-press context menu from appearing
-canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+async function startGame() {
+    // 1. Initialize the Engine
+    const engine = new GameApplication('application-canvas');
 
-// 2. Create the PlayCanvas application
-const app = new pc.Application(canvas, {
-    mouse: new pc.Mouse(canvas),
-    touch: pc.platform.touch ? new pc.TouchDevice(canvas) : undefined
-});
-app.start();
+    // 2. Preload Assets
+    await engine.preload('assets/spritesheet.png', 'assets/spritesheet.json');
 
-// 3. Fill the available space at full resolution
-app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
-app.setCanvasResolution(pc.RESOLUTION_AUTO);
+    // 3. Setup Game Scene
+    new Environment();
+    new Camera();
+    new Light();
 
-// Ensure canvas is resized when window changes size
-window.addEventListener('resize', () => app.resizeCanvas());
+    const player = new Player();
+    const pipePair = new PipePair(ScreenBounds.right + 2);
 
-await SpriteManager.loadMasterSheet('assets/spritesheet.png', 'assets/spritesheet.json');
-Input.init();
-EntityPicker.init();
-new Camera();
-const player = new Player();
-const pipe = new Pipe();
-new Light();
+    // 4. Game Update Loop
+    engine.app.on('update', (dt: number) => {
+        player.tick(dt);
+        pipePair.tick(dt);
 
-// 7. Add an update loop to spin the box
-app.on('update', (dt: number) => {
-    player.Tick(dt);
+        if (checkOverlap(player.rect, pipePair.topRect) || checkOverlap(player.rect, pipePair.bottomRect)) {
+            console.log("Game Over: Overlap detected!");
+        }
 
-    if(checkOverlap(player.rect, pipe.rect)){
-        console.log("overlap");
-    }
+        pipePair.topRect.drawDebug(pc.Color.GREEN);
+        pipePair.bottomRect.drawDebug(pc.Color.GREEN);
 
-    player.rect.drawDebug(pc.Color.RED);
-    pipe.rect.drawDebug(pc.Color.GREEN);
+        // Reset inputs at the very end of the frame
+        Input.instance.postUpdate();
+    });
+}
 
-    Input.instance.postUpdate();
-});
+startGame();

@@ -31,7 +31,7 @@ export class Player {
         this.vel = new pc.Vec2(this.xSpeed, 0);
     }
 
-    Tick(dt: number){
+    tick(dt: number){
         if(Input.instance.justPressed){
             this.vel.y += this.jumpForce;
         }

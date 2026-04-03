@@ -11,15 +11,18 @@ export class SpriteManager {
 
     private static spriteConfigs: Record<string, SpriteConfig> = {
         'pipe-green': {
-            border: [0, 0, 0, 24], // Protect the 24px cap
-            pivot: [0.5, 1.0]      // Anchor to Top-Center so it only stretches down!
+            border: [0, 0, 0, 24],
+            pivot: [0.5, 1.0]
+        },
+        'sky_day': {
+            pivot: [0.5, 0.0]
         }
     };
 
     /**
      * Call this ONCE when your game starts to load the master sprite sheet.
      */
-    static async loadMasterSheet(textureUrl: string, jsonUrl: string): Promise<void> {
+    static async loadMasterSheet(textureUrl: string, jsonUrl: string, filter: number = 1): Promise<void> {
 
         // Load both the image and the JSON file at the same time
         const [textureAsset, jsonAsset] = await Promise.all([
@@ -28,6 +31,8 @@ export class SpriteManager {
         ]);
 
         const texture = textureAsset.resource as pc.Texture;
+        texture.minFilter = filter;
+        texture.magFilter = filter;
         const data = jsonAsset.resource as any; // The parsed JSON data
 
         // Create the master atlas
@@ -49,7 +54,7 @@ export class SpriteManager {
             frames[key] = {
                 rect: new pc.Vec4(frameData.x, texture.height - frameData.y - frameData.h, frameData.w, frameData.h),
                 pivot: new pc.Vec2(pivot[0], pivot[1]),
-                border: new pc.Vec4(border[0], border[1], border[2], border[3])
+                border: new pc.Vec4(border[0], border[1], border[2], border[3]),
             };
         }
 
@@ -59,7 +64,7 @@ export class SpriteManager {
     /**
      * Entities call this to get their specific graphic from the master sheet.
      */
-    static getSprite(frameName: string, pixelsPerUnit: number = 100): pc.Sprite {
+    static getSprite(frameName: string, mode: number = 0, pixelsPerUnit: number = 100, ): pc.Sprite {
         if (!this.masterAtlas) {
             throw new Error("Master sheet not loaded yet! Call loadMasterSheet first.");
         }
@@ -71,15 +76,16 @@ export class SpriteManager {
 
         const app = pc.Application.getApplication()!;
 
-        const config = this.spriteConfigs[frameName];
-        const hasBorders = !!(config && config.border);
+        // const config = this.spriteConfigs[frameName];
+        // const hasBorders = !!(config && config.border);
 
         // Create a new sprite using the specific frame from our master atlas
         const sprite = new pc.Sprite(app.graphicsDevice, {
             atlas: this.masterAtlas,
             frameKeys: [frameName],
             pixelsPerUnit: pixelsPerUnit,
-            renderMode: hasBorders ? pc.SPRITE_RENDERMODE_SLICED : pc.SPRITE_RENDERMODE_SIMPLE
+            renderMode: mode
+            // renderMode: hasBorders ? pc.SPRITE_RENDERMODE_SLICED : pc.SPRITE_RENDERMODE_SIMPLE
         });
 
         this.sprites.set(frameName, sprite);

@@ -26,6 +26,6 @@ export class GameApplication {
 
     // A helper method to handle asset loading before the game starts
     public async preload(textureUrl: string, jsonUrl: string) {
-        await SpriteManager.loadMasterSheet(textureUrl, jsonUrl);
+        await SpriteManager.loadMasterSheet(textureUrl, jsonUrl, pc.FILTER_NEAREST);
     }
 }

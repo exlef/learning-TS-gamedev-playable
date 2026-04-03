@@ -27,12 +27,12 @@ export class PipePair {
 
         // Create bottom pipe
         const bottomPipe = this.createPipeEntity('pipe-bottom');
-        bottomPipe.setLocalPosition(0, -gapSize, 0); // Move down relative to parent
+        bottomPipe.setLocalPosition(0, -gapSize, -1); // Move down relative to parent
         this.bottomRect = new Rect(bottomPipe, 0.4, 3, 0.5, 1);
 
         // Create top pipe
         const topPipe = this.createPipeEntity('pipe-top');
-        topPipe.setLocalPosition(0, gapSize, 0); // Move up relative to parent
+        topPipe.setLocalPosition(0, gapSize, -1); // Move up relative to parent
         // Note: For the top pipe, you might want to flip the sprite upside down!
         topPipe.setLocalEulerAngles(0, 0, 180);
         this.topRect = new Rect(topPipe, 0.4, 3, 0.5, 0);
@@ -54,13 +54,14 @@ export class PipePair {
     // A helper method that just creates a single visual pipe entity
     private createPipeEntity(name: string): pc.Entity {
         const entity = new pc.Entity(name);
-        const sprite = SpriteManager.getSprite('pipe-green');
+        const sprite = SpriteManager.getSprite('pipe-green', pc.SPRITE_RENDERMODE_SLICED);
 
         entity.addComponent('sprite', {
             type: pc.SPRITETYPE_SIMPLE,
             sprite: sprite,
             width: 0.52,
-            height: 10
+            height: 10,
+
         });
 
         // Add it as a child to the ROOT entity, not the app.root!

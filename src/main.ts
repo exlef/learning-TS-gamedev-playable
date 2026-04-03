@@ -17,8 +17,8 @@ async function startGame() {
     await engine.preload('assets/spritesheet.png', 'assets/spritesheet.json');
 
     // 3. Setup Game Scene
+    new Camera(pc.PROJECTION_ORTHOGRAPHIC);
     new Environment();
-    new Camera();
     new Light();
 
     const player = new Player();

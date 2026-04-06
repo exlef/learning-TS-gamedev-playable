@@ -1,28 +1,15 @@
 import * as pc from 'playcanvas';
+import {spriteConfigs} from "./sprite-config.ts";
 
-interface SpriteConfig {
-    border?: [number, number, number, number]; // [Left, Bottom, Right, Top]
-    pivot?: [number, number];                  // [X, Y]
-}
 
 export class SpriteManager {
     private static masterAtlas: pc.TextureAtlas | null = null;
     private static sprites: Map<string, pc.Sprite> = new Map();
 
-    private static spriteConfigs: Record<string, SpriteConfig> = {
-        'pipe-green': {
-            border: [0, 0, 0, 24],
-            pivot: [0.5, 1.0]
-        },
-        'sky_day': {
-            pivot: [0.5, 0.0]
-        }
-    };
-
     /**
      * Call this ONCE when your game starts to load the master sprite sheet.
      */
-    static async loadMasterSheet(textureUrl: string, jsonUrl: string, filter: number = 1): Promise<void> {
+    static async loadMasterSheet(textureUrl: string, jsonUrl: string, filter: number = pc.FILTER_LINEAR): Promise<void> {
 
         // Load both the image and the JSON file at the same time
         const [textureAsset, jsonAsset] = await Promise.all([
@@ -47,7 +34,7 @@ export class SpriteManager {
             const frameData = data.frames[key].frame;
 
             // FETCH THE CONFIG (or use safe defaults if not found)
-            const config = this.spriteConfigs[key] || {};
+            const config = spriteConfigs[key] || {};
             const border = config.border || [0, 0, 0, 0];
             const pivot = config.pivot || [0.5, 0.5]; // Default to center
 
@@ -64,7 +51,7 @@ export class SpriteManager {
     /**
      * Entities call this to get their specific graphic from the master sheet.
      */
-    static getSprite(frameName: string, mode: number = 0, pixelsPerUnit: number = 100, ): pc.Sprite {
+    static getSprite(frameName: string, mode: number = pc.SPRITE_RENDERMODE_SIMPLE, pixelsPerUnit: number = 100, ): pc.Sprite {
         if (!this.masterAtlas) {
             throw new Error("Master sheet not loaded yet! Call loadMasterSheet first.");
         }

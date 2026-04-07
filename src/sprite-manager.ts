@@ -1,6 +1,11 @@
 import * as pc from 'playcanvas';
 import {spriteConfigs} from "./sprite-config.ts";
 
+interface SpriteFrame {
+    rect: pc.Vec4;
+    pivot: pc.Vec2;
+    border: pc.Vec4;
+}
 
 export class SpriteManager {
     private static masterAtlas: pc.TextureAtlas | null = null;
@@ -26,7 +31,7 @@ export class SpriteManager {
         this.masterAtlas = new pc.TextureAtlas();
         this.masterAtlas.texture = texture;
 
-        const frames: any = {};
+        const frames: Record<string, SpriteFrame> = {};
 
         // Loop through the JSON to define the boundaries of every frame.
         // (Note: This assumes a standard TexturePacker Hash JSON format)
@@ -56,6 +61,10 @@ export class SpriteManager {
             throw new Error("Master sheet not loaded yet! Call loadMasterSheet first.");
         }
 
+        if(!(frameName in this.masterAtlas.frames)){
+            console.error("sprite named ", frameName, " is not found");
+        }
+
         // Return cached sprite if we already created it
         if (this.sprites.has(frameName)) {
             return this.sprites.get(frameName)!;
@@ -72,7 +81,6 @@ export class SpriteManager {
             frameKeys: [frameName],
             pixelsPerUnit: pixelsPerUnit,
             renderMode: mode
-            // renderMode: hasBorders ? pc.SPRITE_RENDERMODE_SLICED : pc.SPRITE_RENDERMODE_SIMPLE
         });
 
         this.sprites.set(frameName, sprite);

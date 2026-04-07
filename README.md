@@ -8,6 +8,7 @@ npm create vite@latest . -- --template vanilla-ts
 https://kosresetr55.itch.io/flappy-bird-assets-by-kosresetr55
 
 ### TODO:
+- [x] add error when sprite name is wrong
 - [ ] bird animation
 - [ ]  pipes
      - [ ] more pipes 
